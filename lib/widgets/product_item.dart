@@ -42,6 +42,19 @@ class ProductItem extends StatelessWidget {
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
               cartData.addItem(product.id, product.price, product.title);
+              // Creates a connection to the nearest widget that controls the page we're seeing (=> Scaffold()).
+              Scaffold.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(SnackBar(
+                  content: Text('Added item to cart!'),
+                  duration: Duration(milliseconds: 1500),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cartData.removeSingleItem(product.id);
+                    },
+                  ),
+                ));
             },
             color: Theme.of(context).accentColor,
           ),

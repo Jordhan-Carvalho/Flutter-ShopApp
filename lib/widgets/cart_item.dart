@@ -9,10 +9,35 @@ class CartContainerItem extends StatelessWidget {
 
   CartContainerItem(this.cartItem, this.prodId);
 
+  Future<bool> _dismiss(BuildContext ctx) {
+    // returns a promisse with tru or false after the button is pressed
+    return showDialog(
+        context: ctx,
+        builder: (context) => AlertDialog(
+              title: Text('Are you sure?'),
+              content: Text('Do you want to remove the item from the card?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Yes'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                ),
+                FlatButton(
+                  child: Text('No'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                ),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dismissible(
       key: ValueKey(cartItem.id),
+      confirmDismiss: (direction) => _dismiss(context),
       background: Container(
         color: Theme.of(context).errorColor,
         alignment: Alignment.centerRight,
