@@ -5,12 +5,41 @@ import '../providers/cart.dart';
 import '../widgets/cart_item.dart';
 import '../providers/orders.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
+
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  var _isLoading = false;
+  var _isButtonDisabled = false;
+
+  void _placeOrder(Cart cartData) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await Provider.of<Orders>(context, listen: false).addOrder(
+        cartData.items.values.toList(),
+        cartData.totalAmount,
+      );
+      cartData.clear();
+    } catch (e) {
+      print(e.toString());
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final cartData = Provider.of<Cart>(context);
+    if (cartData.items.isEmpty) {
+      _isButtonDisabled = true;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -42,14 +71,14 @@ class CartScreen extends StatelessWidget {
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
                   FlatButton(
-                    child: Text('ORDER NOW'),
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addOrder(
-                        cartData.items.values.toList(),
-                        cartData.totalAmount,
-                      );
-                      cartData.clear();
-                    },
+                    child: _isLoading
+                        ? CircularProgressIndicator(
+                            strokeWidth: 2,
+                          )
+                        : Text('ORDER NOW'),
+                    onPressed: _isButtonDisabled || _isLoading
+                        ? null
+                        : () => _placeOrder(cartData),
                     textColor: Theme.of(context).primaryColor,
                   )
                 ],

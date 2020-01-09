@@ -1,4 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import './cart.dart';
 
@@ -23,15 +26,68 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
-    _orders.insert(
-        0,
-        OrderItem(
-          id: DateTime.now().toString(),
-          amount: total,
-          products: cartProducts,
-          dateTime: DateTime.now(),
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    const url = 'https://flutter-shopapp-200b2.firebaseio.com/orders.json';
+    final timeStamp = DateTime.now();
+    try {
+      final res = await http.post(url,
+          body: json.encode({
+            'amount': total,
+            'products': cartProducts
+                .map((cp) => {
+                      'id': cp.id,
+                      'title': cp.title,
+                      'quantity': cp.quantity,
+                      'price': cp.price
+                    })
+                .toList(),
+            'dateTime': timeStamp.toIso8601String(),
+          }));
+      _orders.insert(
+          0,
+          OrderItem(
+            id: json.decode(res.body)['name'],
+            amount: total,
+            products: cartProducts,
+            dateTime: timeStamp,
+          ));
+
+      notifyListeners();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> fetchOrders() async {
+    const url = 'https://flutter-shopapp-200b2.firebaseio.com/orders.json';
+    try {
+      final res = await http.get(url);
+
+      final extractedData = json.decode(res.body) as Map<String, dynamic>;
+      final List<OrderItem> loadedOrders = [];
+      if (extractedData == null) {
+        return;
+      }
+      extractedData.forEach((key, value) {
+        loadedOrders.add(OrderItem(
+          id: key,
+          amount: value['amount'],
+          dateTime: DateTime.parse(value['dateTime']),
+          products: (value['products'] as List<dynamic>)
+              .map((item) => CartItem(
+                    id: item['id'],
+                    price: item['price'],
+                    title: item['title'],
+                    quantity: item['quantity'],
+                  ))
+              .toList(),
         ));
-    notifyListeners();
+      });
+      _orders = loadedOrders.reversed.toList();
+
+      notifyListeners();
+    } catch (e) {
+      throw e;
+    }
   }
 }
