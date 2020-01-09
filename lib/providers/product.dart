@@ -21,14 +21,13 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     isFavorite = !isFavorite;
     notifyListeners();
     final url =
-        'https://flutter-shopapp-200b2.firebaseio.com/products/$id.json';
+        'https://flutter-shopapp-200b2.firebaseio.com/userFavorites/$userId/$id.json?auth=$token';
     // DELETE PUT AND PATCH DOESNT HAVE TRHOWN ERROR
-    final res =
-        await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+    final res = await http.put(url, body: json.encode(isFavorite));
     if (res.statusCode >= 400) {
       isFavorite = !isFavorite;
       notifyListeners();
