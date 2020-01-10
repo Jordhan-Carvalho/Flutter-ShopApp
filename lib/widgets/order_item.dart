@@ -36,39 +36,45 @@ class _OrderItemState extends State<OrderItem> {
               },
             ),
           ),
-          if (_expanded)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: 4,
-              ),
-              height: min(widget.order.products.length * 20.0 + 10, 100),
-              child: ListView(
-                children: <Widget>[
-                  ...widget.order.products.map(
-                    (prod) => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          prod.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${prod.quantity}x \$${prod.price}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
+          // if (_expanded)
+          AnimatedContainer(
+            duration: Duration(
+              milliseconds: 200,
             ),
+            curve: Curves.linear,
+            height: _expanded
+                ? min(widget.order.products.length * 20.0 + 10, 100)
+                : 0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 4,
+            ),
+            child: ListView(
+              children: <Widget>[
+                ...widget.order.products.map(
+                  (prod) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        prod.title,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${prod.quantity}x \$${prod.price}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
