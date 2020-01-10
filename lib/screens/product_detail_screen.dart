@@ -18,42 +18,53 @@ class ProductDetailScreen extends StatelessWidget {
     final prod = Provider.of<Products>(context, listen: false).findById(prodId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(prod.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 300,
-              width: double.infinity,
-              child: Image.network(
-                prod.imageUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              '\$${prod.price}',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 20,
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              width: double.infinity,
-              child: Text(
-                prod.description,
+      // appBar: AppBar(
+      //   title: Text(prod.title),
+      // ),
+      body: CustomScrollView(
+        // slivers = scrollable areas of the screen
+        slivers: <Widget>[
+          SliverAppBar(
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                  title: Text(prod.title),
+                  background: Hero(
+                    tag: prod.id,
+                    child: Image.network(
+                      prod.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ))),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              SizedBox(height: 10),
+              Text(
+                '\$${prod.price}',
                 textAlign: TextAlign.center,
-                softWrap: true,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20,
+                ),
               ),
-            )
-          ],
-        ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                width: double.infinity,
+                child: Text(
+                  prod.description,
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                ),
+              ),
+              SizedBox(
+                height: 800,
+              ),
+            ]),
+          ),
+        ],
       ),
     );
   }
