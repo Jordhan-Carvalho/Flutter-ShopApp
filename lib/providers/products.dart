@@ -43,7 +43,8 @@ class Products with ChangeNotifier {
           'title': prod.title,
           'description': prod.description,
           'imageUrl': prod.imageUrl,
-          'price': prod.price
+          'price': prod.price,
+          'creatorId': _userId,
         }),
       );
 
@@ -104,9 +105,11 @@ class Products with ChangeNotifier {
     existingProd = null;
   }
 
-  Future<void> fetchProducts() async {
-    final url =
-        'https://flutter-shopapp-200b2.firebaseio.com/products.json?auth=$_authToken';
+  Future<void> fetchProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorId"&equalTo="$_userId"' : '';
+    var url =
+        'https://flutter-shopapp-200b2.firebaseio.com/products.json?auth=$_authToken$filterString';
     try {
       final resp = await http.get(url);
       final extractedData = json.decode(resp.body) as Map<String, dynamic>;
@@ -118,7 +121,6 @@ class Products with ChangeNotifier {
       final favRes = await http.get(
           'https://flutter-shopapp-200b2.firebaseio.com/userFavorites/$_userId.json?auth=$_authToken');
       final favData = json.decode(favRes.body);
-      print(json.decode(favRes.body));
 
       // key is prodId value is prodData
       extractedData.forEach((key, value) {
